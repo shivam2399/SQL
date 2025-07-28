@@ -1,44 +1,37 @@
+// index.js
 const express = require('express');
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');  // use promise version for async/await
 const app = express();
 
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'SDbuilds@2399',
-    database: 'testdb'
-});
+app.use(express.json());
 
-connection.connect((err) => {
-    if (err) {
-        console.error('Error connecting to the database:', err);
-        return;
-    }
-    console.log('Connected to the database');
-
-    const creationQuery = `CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(20),
-    email VARCHAR(50)
-)`;
-
-
-
-    connection.execute(creationQuery, (err) => {
-        if (err) {
-            console.error('Error creating table:', err);
-            connection.end();
-            return;
-        }
-        console.log('Table created successfully');
-    });
+// Create a DB connection pool
+const pool = mysql.createPool({
+  host: 'localhost',
+  user: 'root',
+  password: 'SDbuilds@2399',  // Your DB password
+  database: 'testdb',         // Your DB name
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');
 });
 
-app.listen(3000, () => {
-  console.log('Server is running');
+// Example route: Get all users
+app.get('/users', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM Users');
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database query failed' });
+  }
 });
 
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
