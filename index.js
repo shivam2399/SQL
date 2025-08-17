@@ -1,6 +1,7 @@
 // index.js - Main server file
 const express = require("express");
 const userRoutes = require("./routes/userRoutes");
+const busRoutes = require("./routes/busRoutes");
 
 const app = express();
 
@@ -9,6 +10,7 @@ app.use(express.json());
 
 // Routes
 app.use("/users", userRoutes);
+app.use("/buses", busRoutes);
 
 // Health check endpoint
 app.get("/", (req, res) => {
@@ -54,5 +56,8 @@ app.listen(PORT, () => {
   console.log(`   POST /users - Create new user`);
   console.log(`   PUT  /users/:id - Update user`);
   console.log(`   DELETE /users/:id - Delete user`);
+  console.log(`   GET  /buses - Get all buses`);
+  console.log(`   POST /buses - Add new bus`);
+  console.log(`   GET  /buses/available/:seats - Get buses with available seats > specified number`);
   console.log(`\n📝 Ready to test CRUD operations!`);
 });
